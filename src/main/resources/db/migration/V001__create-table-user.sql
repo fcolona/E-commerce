@@ -1,7 +1,7 @@
 create table user (
-	id Bigint not null,
+	user_id Bigint not null auto_increment,
+  	email varchar(255) unique not null,
   	password varchar(60) not null,
-  	email varchar(255) not null,
   
-  	primary key(id)
+  	primary key(user_id)
 );
