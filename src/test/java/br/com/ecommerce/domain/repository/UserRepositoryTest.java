@@ -35,7 +35,7 @@ public class UserRepositoryTest {
         roleRepository.save(userRole);
 
         Role adminRole = new Role();
-        userRole.setName("ROLE_ADMIN");
+        adminRole.setName("ROLE_ADMIN");
         roleRepository.save(adminRole);
     }
 
