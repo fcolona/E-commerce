@@ -1,6 +1,7 @@
 package br.com.ecommerce.domain.service;
 
 
+import br.com.ecommerce.api.exception.ResourceNotFoundException;
 import br.com.ecommerce.domain.model.Category;
 import br.com.ecommerce.domain.model.Product;
 import br.com.ecommerce.domain.repository.ProductRepository;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -141,5 +143,21 @@ public class ProductServiceTest {
 
         //then
         verify(productRepository).save(product);
+    }
+
+    @Test
+    void itShouldThrowProductNotFound(){
+        //given
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Product product = new Product();
+        product.setName("Xbox Series S/X");
+        product.setPrice(400.);
+        product.setQuantity(190);
+        //then
+        assertThrows(ResourceNotFoundException.class, () -> {
+            //when
+            underTest.update(1L, product);
+        });
     }
 }
