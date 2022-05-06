@@ -5,14 +5,18 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 @Getter
 @Setter
 public class ProductInput {
-    private long id;
-
+    @Size(max = 255)
     private String name;
 
-    private Integer quantity;    
+    private Integer quantity;
 
     private Double price;
 

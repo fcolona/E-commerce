@@ -2,6 +2,8 @@ package br.com.ecommerce.api.controller;
 
 import java.util.List;
 
+import br.com.ecommerce.api.exception.ResourceAlreadyExistsException;
+import br.com.ecommerce.api.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +21,8 @@ import br.com.ecommerce.domain.repository.CategoryRepository;
 import br.com.ecommerce.domain.service.CategoryService;
 import lombok.AllArgsConstructor;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/category")
 @AllArgsConstructor
@@ -33,12 +37,12 @@ public class CategoryController {
     
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Category createCategory(@RequestBody Category category){
+    public Category createCategory(@RequestBody @Valid Category category) throws ResourceAlreadyExistsException {
        return categoryService.save(category); 
     }
 
     @PutMapping("/{categoryId}")
-    public Category updateCategory(@PathVariable long categoryId, @RequestBody Category category){
+    public Category updateCategory(@PathVariable long categoryId, @RequestBody @Valid Category category) throws ResourceAlreadyExistsException, ResourceNotFoundException {
         return categoryService.update(categoryId, category);
     }
 

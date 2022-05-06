@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import br.com.ecommerce.api.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -28,6 +29,8 @@ import br.com.ecommerce.domain.repository.ProductRepository;
 import br.com.ecommerce.domain.service.ProductService;
 import lombok.AllArgsConstructor;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/product")
 @AllArgsConstructor
@@ -39,7 +42,7 @@ public class ProductController {
    @GetMapping
     public Page<Product> getProductPage(@PageableDefault(page = 0, size = 10, sort = "name", direction = Direction.DESC) Pageable pageable){
             return productRepository.findAll(pageable);
-    } 
+    }
 
     @GetMapping("/search")
     public List<Map<String, Object>> getProductPageByCategories(@PageableDefault(page = 0, size = 10, sort = "name", direction = Direction.DESC) Pageable pageable, @RequestParam List<String> categories) throws SQLException{
@@ -48,7 +51,7 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product createProduct(@RequestBody ProductInput productInput){
+    public Product createProduct(@RequestBody @Valid ProductInput productInput){
         Product product = productAssembler.toEntity(productInput);
 
         return productService.save(product); 
@@ -63,7 +66,7 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    public Product updateProduct(@PathVariable long productId, @RequestBody ProductInput productInput){
+    public Product updateProduct(@PathVariable long productId, @RequestBody @Valid ProductInput productInput) throws ResourceNotFoundException {
         Product product = productAssembler.toEntity(productInput);
 
         return productService.update(productId, product); 

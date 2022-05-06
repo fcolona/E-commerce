@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
+import br.com.ecommerce.api.exception.ResourceAlreadyExistsException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -51,7 +53,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse createUser(@RequestBody UserInput userInput){
+    public UserResponse createUser(@RequestBody @Valid UserInput userInput) throws ResourceAlreadyExistsException {
         User user = userAssembler.toEntity(userInput);
 
         User userSaved = userService.save(user); 
