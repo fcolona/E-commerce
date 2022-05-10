@@ -1,21 +1,19 @@
 package br.com.ecommerce.domain.service;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Stream;
-
-import javax.transaction.Transactional;
-
 import br.com.ecommerce.api.exception.ErrorDetails;
 import br.com.ecommerce.api.exception.ResourceNotFoundException;
+import br.com.ecommerce.domain.model.Product;
+import br.com.ecommerce.domain.repository.ProductRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import br.com.ecommerce.domain.model.Product;
-import br.com.ecommerce.domain.repository.ProductRepository;
-import lombok.AllArgsConstructor;
+import javax.transaction.Transactional;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor

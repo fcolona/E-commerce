@@ -2,14 +2,7 @@ package br.com.ecommerce.domain.model;
 
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -36,4 +29,7 @@ public class Product {
     @ManyToMany
     @JoinTable(name = "products_categories", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))    
     private List<Category> categories;
+
+    @ManyToMany(mappedBy = "product", cascade = CascadeType.PERSIST)
+    private List<Image> images;
 }
