@@ -20,18 +20,14 @@ public class UserAssembler {
         return modelMapper.map(userInput, User.class);
     }
 
-    public UserResponse toResponse(User user){      
-        UserResponse res = modelMapper.map(user, UserResponse.class);
-
-        return res;
+    public UserResponse toResponse(User user){
+        return modelMapper.map(user, UserResponse.class);
     }
 
     public List<UserResponse> toCollectionResponse(List<User> users){
 
-        List<UserResponse> res = users.stream()
+        return users.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
-
-        return res;
     }
 }

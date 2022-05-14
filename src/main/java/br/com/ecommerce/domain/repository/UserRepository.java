@@ -13,6 +13,7 @@ import br.com.ecommerce.domain.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
+    //entityGraph findAll cart
     public Optional<User> findByEmail(String email);
 
     @Transactional

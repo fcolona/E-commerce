@@ -1,5 +1,6 @@
 package br.com.ecommerce.api.security;
 
+import br.com.ecommerce.domain.model.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

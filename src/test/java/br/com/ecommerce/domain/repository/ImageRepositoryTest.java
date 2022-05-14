@@ -29,7 +29,7 @@ public class ImageRepositoryTest {
         Product product = new Product();
         product.setName("Xbox Series S Controller");
         product.setPrice(350.0);
-        product.setQuantity(200);
+        product.setQuantityInStock(200);
         productRepository.save(product);
 
 

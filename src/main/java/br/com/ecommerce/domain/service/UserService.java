@@ -7,6 +7,8 @@ import java.util.Set;
 
 import br.com.ecommerce.api.exception.ErrorDetails;
 import br.com.ecommerce.api.exception.ResourceAlreadyExistsException;
+import br.com.ecommerce.domain.model.Cart;
+import br.com.ecommerce.domain.repository.CartRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserService {
     private UserRepository userRepository;
+
+    private CartRepository cartRepository;
     
     public User save(User user) throws ResourceAlreadyExistsException{
         boolean userAlreadyExits = userRepository.findByEmail(user.getEmail()).isPresent();
@@ -38,6 +42,11 @@ public class UserService {
         BCryptPasswordEncoder bcryptPasswordEncoder = new BCryptPasswordEncoder();
         user.setPassword(bcryptPasswordEncoder.encode(user.getPassword()));
 
-        return userRepository.save(user); 
+        User userSaved = userRepository.save(user);
+        Cart cart = new Cart();
+        cart.setUser(userSaved);
+        cartRepository.save(cart);
+
+        return userSaved;
     }
 }

@@ -64,7 +64,7 @@ public class ProductService {
         //if no, it just remains the same
         existingProduct.setName(Objects.isNull(product.getName()) ? existingProduct.getName() : product.getName()); 
         existingProduct.setPrice(Objects.isNull(product.getPrice()) ? existingProduct.getPrice() : product.getPrice()); 
-        existingProduct.setQuantity(Objects.isNull(product.getQuantity()) ? existingProduct.getQuantity() : product.getQuantity()); 
+        existingProduct.setQuantityInStock(Objects.isNull(product.getQuantityInStock()) ? existingProduct.getQuantityInStock() : product.getQuantityInStock());
         existingProduct.setCategories(Objects.isNull(product.getCategories()) ? existingProduct.getCategories() : product.getCategories()); 
 
         return productRepository.save(existingProduct);

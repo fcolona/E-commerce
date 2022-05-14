@@ -40,7 +40,7 @@ public class ProductRepositoryTest {
         Product product = new Product();
         product.setName("Xbox Series S Controller");
         product.setPrice(350.0);
-        product.setQuantity(200);
+        product.setQuantityInStock(200);
         product.setCategories(categories);
         Product productSaved = underTest.save(product);
 

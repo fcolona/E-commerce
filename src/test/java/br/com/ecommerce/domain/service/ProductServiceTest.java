@@ -45,7 +45,7 @@ public class ProductServiceTest {
         Product product = new Product();
         product.setName("Xbox Series S Controller");
         product.setPrice(350.0);
-        product.setQuantity(200);
+        product.setQuantityInStock(200);
 
         //when
         underTest.save(product);
@@ -128,13 +128,13 @@ public class ProductServiceTest {
         Product productToBeReturned = new Product();
         productToBeReturned.setName("Xbox Series S Controller");
         productToBeReturned.setPrice(350.0);
-        productToBeReturned.setQuantity(200);
+        productToBeReturned.setQuantityInStock(200);
         productToBeReturned.setCategories(categories);
         when(productRepository.findById(1L)).thenReturn(Optional.of(productToBeReturned));
         Product product = new Product();
         product.setName("Xbox Series S/X");
         product.setPrice(400.);
-        product.setQuantity(190);
+        product.setQuantityInStock(190);
         categories.remove(1);
         product.setCategories(categories);
 
@@ -153,7 +153,7 @@ public class ProductServiceTest {
         Product product = new Product();
         product.setName("Xbox Series S/X");
         product.setPrice(400.);
-        product.setQuantity(190);
+        product.setQuantityInStock(190);
         //then
         assertThrows(ResourceNotFoundException.class, () -> {
             //when

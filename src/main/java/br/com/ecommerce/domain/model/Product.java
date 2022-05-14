@@ -1,6 +1,6 @@
 package br.com.ecommerce.domain.model;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.*;
 
@@ -22,14 +22,15 @@ public class Product {
 
     private String name;
 
-    private Integer quantity;
+    @Column(name = "quantity")
+    private Integer quantityInStock;
 
     private Double price;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "products_categories", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))    
-    private List<Category> categories;
+    private Set<Category> categories;
 
-    @ManyToMany(mappedBy = "product", cascade = CascadeType.PERSIST)
-    private List<Image> images;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.PERSIST)
+    private Set<Image> images;
 }

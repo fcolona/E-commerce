@@ -27,6 +27,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
        http.authorizeRequests()
             .antMatchers(HttpMethod.GET,"/api/v1/user").hasRole("ADMIN")
+            .antMatchers(HttpMethod.POST,"/api/v1/user").permitAll()
+            .antMatchers(HttpMethod.GET,"/api/v1/cart").hasRole("USER")
+            .antMatchers(HttpMethod.POST,"/api/v1/cart").hasRole("USER")
+            .antMatchers(HttpMethod.DELETE,"/api/v1/cart").hasRole("USER")
             .and()
             .formLogin().permitAll();
         http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
