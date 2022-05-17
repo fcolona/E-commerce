@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -54,7 +52,19 @@ public class CartService {
     public Cart updateProductQuantity(long cartId, long cartItemId, int quantity) {
         Cart cart = cartRepository.findById(cartId).orElseThrow();
         try{
+            //Filter the items looking for the cart with given id
             CartItem cartItem = cart.getCartItems().stream().filter((item) -> item.getCartItemId() == cartItemId).toList().get(0);
+
+            //Checks if the quantity of the product is equal to zero
+            if(quantity == 0){
+               //If so, subtracts the product price from the total
+               cart.setTotal(cart.getTotal() - cartItem.getProduct().getPrice());
+
+               //And removes the item from the cart
+               cart.getCartItems().remove(cartItem);
+
+               return cartRepository.save(cart);
+            }
 
             //Stores quantity before updating
             int pastQuantity = cartItem.getQuantity();
