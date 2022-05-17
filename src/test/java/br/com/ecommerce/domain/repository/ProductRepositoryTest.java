@@ -10,7 +10,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @DataJpaTest
 public class ProductRepositoryTest {
@@ -28,7 +30,7 @@ public class ProductRepositoryTest {
     @Test
     void itShouldDeleteFromLinkTable(){
         //given
-        List<Category> categories = new ArrayList<>();
+        Set<Category> categories = new HashSet<>();
         Category gamingCategory = new Category();
         gamingCategory.setName("Gaming");
         Category technologyCategory = new Category();

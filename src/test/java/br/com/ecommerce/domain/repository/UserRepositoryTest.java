@@ -50,7 +50,9 @@ public class UserRepositoryTest {
         List<Role> roles = new ArrayList<>();
         Role role = roleRepository.findById(1L).get();
         roles.add(role);
-        User user = new User("user@gmail.com", "123");
+        User user = new User();
+        user.setEmail("user@gmail.com");
+        user.setPassword("123");
         user.setRoles(roles);
         underTest.save(user);
 
@@ -76,7 +78,9 @@ public class UserRepositoryTest {
         List<Role> roles = new ArrayList<>();
         Role role = roleRepository.findById(1L).get();
         roles.add(role);
-        User user = new User("user@gmail.com", "123");
+        User user = new User();
+        user.setEmail("user@gmail.com");
+        user.setPassword("123");
         user.setRoles(roles);
         User userSaved = underTest.save(user);       
 

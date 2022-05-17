@@ -15,9 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -117,7 +115,7 @@ public class ProductServiceTest {
     @Test
     void canUpdateProduct(){
         //given
-        List<Category> categories = new ArrayList<>();
+        Set<Category> categories = new HashSet<>();
         Category gamingCategory = new Category();
         gamingCategory.setName("Gaming");
         Category technologyCategory = new Category();
