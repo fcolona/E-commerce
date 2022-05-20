@@ -71,4 +71,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler{
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UserDoesNotHaveResourceRegistered.class)
+    public ResponseEntity<?> UserDoesNotHaveResource(UserDoesNotHaveResourceRegistered exception, WebRequest request){
+        Set<ErrorDetails.Field> fields = exception.getFields();
+        ErrorDetails errorDetails = new ErrorDetails();
+        errorDetails.setStatus(400);
+        errorDetails.setDateTime(OffsetDateTime.now());
+        errorDetails.setTitle("There are one or more invalid fields. Please fill it in the correct way and try again.");
+        errorDetails.setFields(fields);
+
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
 }
