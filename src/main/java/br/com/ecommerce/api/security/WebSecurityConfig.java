@@ -35,6 +35,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
             .antMatchers(HttpMethod.POST,"/api/v1/user-address").hasRole("USER")
             .antMatchers(HttpMethod.PUT,"/api/v1/user-address").hasRole("USER")
             .antMatchers(HttpMethod.DELETE,"/api/v1/user-address").hasRole("USER")
+            .antMatchers(HttpMethod.GET,"/api/v1/user-payment").hasRole("USER")
+            .antMatchers(HttpMethod.POST,"/api/v1/user-payment").hasRole("USER")
+            .antMatchers(HttpMethod.PUT,"/api/v1/user-payment").hasRole("USER")
+            .antMatchers(HttpMethod.DELETE,"/api/v1/user-payment").hasRole("USER")
             .and()
             .formLogin().permitAll();
         http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
