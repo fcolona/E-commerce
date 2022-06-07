@@ -7,7 +7,13 @@
 </head>
 
 <body>
-    <form id="payment-form">
+    <div id="address"></div>
+    <input type="text" id="recipient">
+    <br>
+    <a href="/">Add new address</a>
+    <br>
+    <button id="next">Next</button>
+    <form id="payment-form" style="display: none;">
         <input type="hidden" id="stripeApiKey" th:value="${stripeApiKey}">
         <div id="payment-element">
             <!-- Elements will create form elements here -->
@@ -25,7 +31,7 @@
     headers.append("Authorization", `Bearer ${jwtToken}`)
     fetch(`${window.location.origin}/api/v1/payment`, { method: "POST", headers: headers }).then((response) => {
         return response.text();
-    }).then((data) => {
+    }).then(async (data) => {
         let clientSecret = data
 
         let stripeKey = document.getElementById("stripeApiKey").value
@@ -34,13 +40,47 @@
             clientSecret: clientSecret,
         };
 
+        const addressDiv = document.getElementById("address")
+        let response = await fetch(`${window.location.origin}/api/v1/user-address`, { headers: headers })
+        let addressess = await response.json()
+        addressess.forEach(address => {
+            const inpRadio = document.createElement("input")
+            inpRadio.className = "addressInpRadio"
+            inpRadio.type = "radio"
+            addressDiv.appendChild(inpRadio)
+
+            const span = document.createElement("span")
+            span.textContent = `${address.addressLine1} ${address.addressLine2} (${address.city}/${address.country})`
+            addressDiv.appendChild(span)
+
+            const lineBreak = document.createElement("br")
+            addressDiv.appendChild(lineBreak)
+        })
+
+        const nextBtn = document.getElementById("next")
+        let address = {}
+        nextBtn.addEventListener('click', (event) => {
+            addressDiv.style.display = "none"
+            form.style.display = "initial"
+
+            let radios = Array.from(document.getElementsByClassName("addressInpRadio"))
+            for(let i = 0; i < radios.length; i++){
+                if(radios[i].value === "on"){
+                    address.line1 = addressess[i].addressLine1 
+                    address.line2 = addressess[i].addressLine2
+                    address.city = addressess[i].city 
+                    address.country = addressess[i].country
+                    address.postalCode = addressess[i].postalCode
+                }
+            }
+        })
         const elements = stripe.elements(options);
 
         const paymentElement = elements.create('payment');
         paymentElement.mount('#payment-element');
 
         const form = document.getElementById('payment-form');
-
+        const recipient = document.getElementById("recipient")
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
 
@@ -48,14 +88,26 @@
                 elements,
                 confirmParams: {
                     return_url: `${window.location.origin}/payment/success`,
+                    shipping: {
+                        name: recipient.value,
+                        address: {
+                            line1: address.line1,
+                            line2: address.line2,
+                            city: address.city,
+                            country: address.country,
+                            postal_code: address.postalCode
+                        }
+                    }
                 },
+                redirect: "if_required"
             });
 
             if (error) {
                 const messageContainer = document.querySelector('#error-message');
                 messageContainer.textContent = error.message;
             } else {
-
+                document.body.innerHTML = ""
+                fetch(`${window.location.origin}/api/v1/cart`, { method: "DELETE", headers: headers }).then()
             }
         });
     })
