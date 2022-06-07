@@ -1,0 +1,64 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Data</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+
+<body>
+    <form id="payment-form">
+        <input type="hidden" id="stripeApiKey" th:value="${stripeApiKey}">
+        <div id="payment-element">
+            <!-- Elements will create form elements here -->
+        </div>
+        <button id="submit">Next</button>
+        <div id="error-message">
+            <!-- Display error message to your customers here -->
+        </div>
+    </form>
+</body>
+<script>
+    let jwtToken = sessionStorage.getItem("jwtToken")
+
+    let headers = new Headers
+    headers.append("Authorization", `Bearer ${jwtToken}`)
+    fetch(`${window.location.origin}/api/v1/payment`, { method: "POST", headers: headers }).then((response) => {
+        return response.text();
+    }).then((data) => {
+        let clientSecret = data
+
+        let stripeKey = document.getElementById("stripeApiKey").value
+        const stripe = Stripe(stripeKey);
+        const options = {
+            clientSecret: clientSecret,
+        };
+
+        const elements = stripe.elements(options);
+
+        const paymentElement = elements.create('payment');
+        paymentElement.mount('#payment-element');
+
+        const form = document.getElementById('payment-form');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const { error } = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: `${window.location.origin}/payment/success`,
+                },
+            });
+
+            if (error) {
+                const messageContainer = document.querySelector('#error-message');
+                messageContainer.textContent = error.message;
+            } else {
+
+            }
+        });
+    })
+</script>
+
+</html>

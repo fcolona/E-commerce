@@ -40,7 +40,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
             .antMatchers(HttpMethod.PUT,"/api/v1/user-payment").hasRole("USER")
             .antMatchers(HttpMethod.DELETE,"/api/v1/user-payment").hasRole("USER")
             .and()
-            .formLogin().permitAll();
+            .formLogin()
+               .loginPage("/login")
+               .permitAll();
         http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
    } 

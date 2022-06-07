@@ -41,10 +41,6 @@ public class User implements UserDetails{
     @JoinColumn(name = "user_id")
     private List<UserAddress> addresses;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private List<UserPayment> payments;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
