@@ -19,9 +19,10 @@
             <!-- Elements will create form elements here -->
         </div>
         <button id="submit">Next</button>
-        <div id="error-message">
-            <!-- Display error message to your customers here -->
+        <div th:if="${param.keySet().contains('error')}">
+            <span>An error happened, try again</span>
         </div>
+
     </form>
 </body>
 <script>
@@ -32,7 +33,8 @@
     fetch(`${window.location.origin}/api/v1/payment`, { method: "POST", headers: headers }).then((response) => {
         return response.text();
     }).then(async (data) => {
-        let clientSecret = data
+        let res = await fetch(`${window.location.origin}/api/v1/payment/secret/${data}`)
+        let clientSecret = await res.text()
 
         let stripeKey = document.getElementById("stripeApiKey").value
         const stripe = Stripe(stripeKey);
@@ -66,6 +68,7 @@
             let radios = Array.from(document.getElementsByClassName("addressInpRadio"))
             for(let i = 0; i < radios.length; i++){
                 if(radios[i].value === "on"){
+                    address.id = addressess[i].id
                     address.line1 = addressess[i].addressLine1 
                     address.line2 = addressess[i].addressLine2
                     address.city = addressess[i].city 
@@ -81,8 +84,18 @@
 
         const form = document.getElementById('payment-form');
         const recipient = document.getElementById("recipient")
+
         form.addEventListener('submit', async (event) => {
-            event.preventDefault();
+        event.preventDefault();
+
+        let res = await fetch(`${window.location.origin}/api/v1/cart`, { method: "GET", headers: headers })
+        let cart = await res.json()
+        let result = await stripe.retrievePaymentIntent(clientSecret)
+        let paymentIntent = await result.paymentIntent
+
+        if(cart.total !== paymentIntent.amount / 100){
+            document.location.href = `${document.location.href}?error`
+        }
 
             const { error } = await stripe.confirmPayment({
                 elements,
@@ -107,7 +120,18 @@
                 messageContainer.textContent = error.message;
             } else {
                 document.body.innerHTML = ""
-                fetch(`${window.location.origin}/api/v1/cart`, { method: "DELETE", headers: headers }).then()
+                let orderItems = []
+                cart.cartItems.forEach( item => {
+                    orderItems.push({productId: item.product.id, quantity: item.quantity})
+                })
+                headers.append("Content-Type", "application/json; charset=UTF-8")
+                await fetch(`${window.location.origin}/api/v1/order`, { method: "POST", headers: headers, body: JSON.stringify({
+                    orderItems: orderItems,
+                    addressId: address.id,
+                    stripeId: paymentIntent.id,
+                })})
+                headers.delete("ContentType")
+                await fetch(`${window.location.origin}/api/v1/cart`, { method: "DELETE", headers: headers })
             }
         });
     })

@@ -48,6 +48,11 @@ public class PaymentController {
         Cart cart = cartRepository.findById(user.getId()).orElseThrow();
 
         PaymentIntent paymentIntent = paymentService.save(cart.getTotal());
-        return paymentIntent.getClientSecret();
+        return paymentIntent.getId();
+    }
+
+    @GetMapping("/secret/{stripeId}")
+    public String getClientSecret(@PathVariable String stripeId) throws StripeException {
+        return PaymentIntent.retrieve(stripeId).getClientSecret();
     }
 }
