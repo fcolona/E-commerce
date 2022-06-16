@@ -15,4 +15,8 @@ public class ProductAssembler {
     public Product toEntity(ProductInput productInput) {
         return modelMapper.map(productInput, Product.class);
     }
+
+    public <T> T toAnyResponse(Product entity, Class<T> dtoClass) {
+        return modelMapper.map(entity, dtoClass);
+    }
 }

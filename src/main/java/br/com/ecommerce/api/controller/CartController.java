@@ -3,6 +3,7 @@ package br.com.ecommerce.api.controller;
 import br.com.ecommerce.api.assembler.CartAssembler;
 import br.com.ecommerce.api.model.input.CartInput;
 import br.com.ecommerce.api.model.response.CartResponse;
+import br.com.ecommerce.api.model.response.CartWithItemsResponse;
 import br.com.ecommerce.domain.model.Cart;
 import br.com.ecommerce.domain.model.CartItem;
 import br.com.ecommerce.domain.model.User;
@@ -35,13 +36,21 @@ public class CartController {
         return cartAssembler.toResponse(cart);
     }
 
+    @GetMapping("/items")
+    public CartWithItemsResponse getCurrentUserCartAndRetrieveCartItems(){
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Cart cart = cartRepository.findByIdAndRetrieveItems(user.getId()).orElseThrow();
+        return cartAssembler.toAnyResponse(cart, CartWithItemsResponse.class);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CartResponse addProductToCart(@RequestBody CartInput cartInput){
+    public CartWithItemsResponse addProductToCart(@RequestBody CartInput cartInput){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
        Cart cartSaved = cartService.addToCart(user.getId(), cartInput);
-       return cartAssembler.toResponse(cartSaved);
+       return cartAssembler.toAnyResponse(cartSaved, CartWithItemsResponse.class);
     }
 
     @DeleteMapping
@@ -54,9 +63,10 @@ public class CartController {
     }
 
     @PutMapping
-    public CartResponse updateProductQuantity(@RequestParam long cartItemId, @RequestParam int quantity){
+    public CartWithItemsResponse updateProductQuantity(@RequestParam long cartItemId, @RequestParam int quantity){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Cart cart = cartService.updateProductQuantity(user.getId(), cartItemId, quantity);
-        return cartAssembler.toResponse(cart);
+
+        return cartAssembler.toAnyResponse(cart, CartWithItemsResponse.class);
     }
 }

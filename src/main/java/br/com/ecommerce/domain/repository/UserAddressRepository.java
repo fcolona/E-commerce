@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface UserAddressRepository extends JpaRepository<UserAddress, Long> {
 
-    @Query(name = "SELECT * FROM user_address WHERE user_id = ?1", nativeQuery = true)
+    @Query(name = "SELECT a FROM UserAddress a WHERE User.id = ?1")
     List<UserAddress> findByUserId(long userId);
 
     @Query(name = "SELECT * FROM user_address WHERE address_id = ?1 AND user_id = ?2", nativeQuery = true)

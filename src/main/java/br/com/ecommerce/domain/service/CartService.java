@@ -24,7 +24,7 @@ public class CartService {
 
     @Transactional
     public Cart addToCart(long cartId, CartInput cartInput){
-       Cart existingCart = cartRepository.findById(cartId).orElseThrow(() -> {
+       Cart existingCart = cartRepository.findByIdAndRetrieveItems(cartId).orElseThrow(() -> {
            Set<ErrorDetails.Field> fields = new HashSet<>();
            fields.add(new ErrorDetails.Field("cartId", "Id given do not match"));
            throw new ResourceNotFoundException(fields);
@@ -50,7 +50,7 @@ public class CartService {
     }
 
     public Cart updateProductQuantity(long cartId, long cartItemId, int quantity) {
-        Cart cart = cartRepository.findById(cartId).orElseThrow();
+        Cart cart = cartRepository.findByIdAndRetrieveItems(cartId).orElseThrow();
         try{
             //Filter the items looking for the cart with given id
             CartItem cartItem = cart.getCartItems().stream().filter((item) -> item.getCartItemId() == cartItemId).toList().get(0);

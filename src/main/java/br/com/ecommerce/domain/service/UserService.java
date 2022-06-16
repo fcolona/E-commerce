@@ -34,7 +34,7 @@ public class UserService {
 
         List<Role> roles = new ArrayList<>();
         Role role = new Role();
-        role.setId(1);
+        role.setId(1L);
 
         roles.add(role);
         user.setRoles(roles); 

@@ -1,11 +1,8 @@
 package br.com.ecommerce.api.assembler;
 
 import br.com.ecommerce.api.model.input.CartInput;
-import br.com.ecommerce.api.model.input.UserInput;
 import br.com.ecommerce.api.model.response.CartResponse;
-import br.com.ecommerce.api.model.response.UserResponse;
 import br.com.ecommerce.domain.model.Cart;
-import br.com.ecommerce.domain.model.User;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -31,5 +28,9 @@ public class CartAssembler {
         return carts.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public <T> T toAnyResponse(Cart entity, Class<T> dtoClass) {
+        return modelMapper.map(entity, dtoClass);
     }
 }

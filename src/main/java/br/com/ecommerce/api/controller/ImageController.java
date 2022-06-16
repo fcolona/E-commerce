@@ -18,7 +18,7 @@ import java.util.List;
 public class ImageController {
     private ImageService imageService;
 
-    @PostMapping(value = "/api/v1/products/{productId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/api/v1/product/{productId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<Image> addImagesToProducts(@RequestPart("files") MultipartFile[] imagesFile, @PathVariable long productId) throws IOException {
         List<Image> images = new ArrayList<>();
         for (MultipartFile multipartFile : imagesFile) {

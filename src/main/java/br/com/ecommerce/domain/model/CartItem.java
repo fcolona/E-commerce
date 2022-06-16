@@ -17,7 +17,7 @@ public class CartItem {
     @EqualsAndHashCode.Include
     private long cartItemId;
 
-    @OneToOne
+    @OneToOne(optional = false)
     @JoinColumn(name = "product_id")
     private Product product;
 

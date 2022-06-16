@@ -3,6 +3,7 @@ package br.com.ecommerce.api.assembler;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import br.com.ecommerce.domain.model.Product;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -30,4 +31,14 @@ public class UserAssembler {
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+
+    public <T> T toAnyResponse(User entity, Class<T> dtoClass) {
+        return modelMapper.map(entity, dtoClass);
+    }
+    public <T> List<T> toCollectionAnyResponse(List<User> users, Class<T> dtoClass){
+        return users.stream()
+                .map( user -> toAnyResponse(user, dtoClass))
+                .collect(Collectors.toList());
+    }
 }
+

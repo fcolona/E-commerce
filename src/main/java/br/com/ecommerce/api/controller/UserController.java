@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import br.com.ecommerce.api.exception.ResourceAlreadyExistsException;
+import br.com.ecommerce.api.model.response.UserWithRolesAndAddressesAndOrdersResponse;
+import br.com.ecommerce.api.model.response.UserWithRolesResponse;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -21,17 +23,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import br.com.ecommerce.api.assembler.UserAssembler;
 import br.com.ecommerce.api.model.input.UserInput;
-import br.com.ecommerce.api.model.response.UserResponse;
 import br.com.ecommerce.domain.model.Role;
 import br.com.ecommerce.domain.model.User;
 import br.com.ecommerce.domain.repository.UserRepository;
@@ -55,22 +50,24 @@ public class UserController {
     }
     
     @GetMapping
-    public List<UserResponse> getAllUsers(){
+    public List<UserWithRolesAndAddressesAndOrdersResponse> getAllUsers(){
         List<User> users = userRepository.findAll();
-        return userAssembler.toCollectionResponse(users);
+        return userAssembler.toCollectionAnyResponse(users, UserWithRolesAndAddressesAndOrdersResponse.class);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse createUser(@RequestBody @Valid UserInput userInput) throws ResourceAlreadyExistsException {
+    public UserWithRolesResponse createUser(@RequestBody @Valid UserInput userInput) throws ResourceAlreadyExistsException {
         User user = userAssembler.toEntity(userInput);
 
         User userSaved = userService.save(user); 
-        return userAssembler.toResponse(userSaved);
+        return userAssembler.toAnyResponse(userSaved, UserWithRolesResponse.class);
     }
 
+    @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userRepository.deleteFromLinkTable(userId);
+        userRepository.deleteCartByUserId(userId);
         userRepository.deleteById(userId);
 
         return ResponseEntity.noContent().build();
@@ -89,7 +86,7 @@ public class UserController {
                     DecodedJWT decodedJWT = verifier.verify(refreshToken);
                     String username = decodedJWT.getSubject();
 
-                    User user = userRepository.findByEmail(username).get();
+                    User user = userRepository.findByEmailAndRetrieveRoles(username).get();
 
                     int tenMinutes = 10 * 60 * 1000;
 

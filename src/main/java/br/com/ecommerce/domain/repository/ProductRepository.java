@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 
 import br.com.ecommerce.domain.model.Product;
 
+import java.util.Optional;
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>{
     @Override
@@ -20,6 +22,27 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
             attributePaths = {"categories", "images"}
     )
     Page<Product> findAll(Pageable pageable);
+
+    @EntityGraph(
+            type = EntityGraph.EntityGraphType.FETCH,
+            attributePaths = {"categories"}
+    )
+    @Query(value = "SELECT p FROM Product p WHERE p.id = ?1")
+    Optional<Product> findByIdAndRetrieveCategories(long productId);
+
+    @EntityGraph(
+            type = EntityGraph.EntityGraphType.FETCH,
+            attributePaths = {"images"}
+    )
+    @Query(value = "SELECT p FROM Product p WHERE p.id = ?1")
+    Optional<Product> findByIdAndRetrieveImages(long productId);
+
+    @EntityGraph(
+            type = EntityGraph.EntityGraphType.FETCH,
+            attributePaths = {"categories", "images"}
+    )
+    @Query(value = "SELECT p FROM Product p WHERE p.id = ?1")
+    Optional<Product> findByIdAndRetrieveCategoriesAndImages(long productId);
 
     @Transactional
     @Modifying

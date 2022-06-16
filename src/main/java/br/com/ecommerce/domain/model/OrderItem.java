@@ -17,12 +17,12 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
 
-    @OneToOne
+    @OneToOne(optional = false)
     @JoinColumn(name = "product_id")
     private Product product;
 

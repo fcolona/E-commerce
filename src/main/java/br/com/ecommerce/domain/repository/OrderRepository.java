@@ -1,6 +1,7 @@
 package br.com.ecommerce.domain.repository;
 
 import br.com.ecommerce.domain.model.Order;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,9 +12,34 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    @Query(value = "SELECT * FROM `order` WHERE user_id = ?1", nativeQuery = true)
+    @EntityGraph(
+            type = EntityGraph.EntityGraphType.FETCH,
+            attributePaths = {"orderItems", "userAddress"}
+    )
+    @Query(value = "SELECT o FROM Order o WHERE o.userId = ?1")
     List<Order> findByUserId(long userId);
 
-    @Query(value = "SELECT * FROM `order` WHERE id = ?1 AND user_id = ?2", nativeQuery = true)
+    @Query(value = "SELECT o FROM Order o WHERE o.id = :orderId AND o.userId = :userId")
     Optional<Order> findByIdAndUserId(long orderId, long userId);
+
+    @EntityGraph(
+            type = EntityGraph.EntityGraphType.FETCH,
+            attributePaths = {"orderItems"}
+    )
+    @Query(value = "SELECT o FROM Order o WHERE o.id = :orderId AND o.userId = :userId")
+    Optional<Order> findByIdAndUserIdAndRetrieveItems(long orderId, long userId);
+
+    @EntityGraph(
+            type = EntityGraph.EntityGraphType.FETCH,
+            attributePaths = {"userAddress"}
+    )
+    @Query(value = "SELECT o FROM Order o WHERE o.id = :orderId AND o.userId = :userId")
+    Optional<Order> findByIdAndUserIdAndRetrieveAddress(long orderId, long userId);
+
+    @EntityGraph(
+            type = EntityGraph.EntityGraphType.FETCH,
+            attributePaths = {"orderItems", "userAddress"}
+    )
+    @Query(value = "SELECT o FROM Order o WHERE o.id = :orderId AND o.userId = :userId")
+    Optional<Order> findByIdAndUserIdAndRetrieveItemsAndAddress(long orderId, long userId);
 }

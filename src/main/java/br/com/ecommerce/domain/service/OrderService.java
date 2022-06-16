@@ -12,7 +12,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrderService {
@@ -35,7 +37,7 @@ public class OrderService {
         userAddress.setId(orderInput.getAddressId());
         order.setUserAddress(userAddress);
 
-        List<OrderItem> orderItems = new ArrayList<>();
+        Set<OrderItem> orderItems = new HashSet<>();
         orderInput.getOrderItems().forEach( item -> {
             OrderItem orderItem = new OrderItem();
             orderItem.setQuantity(item.getQuantity());
@@ -52,13 +54,13 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public void updateStatus(User user, Order order, Order.StatusEnum statusEnum) {
+    public void updateStatus(String userEmail, Order order, Order.StatusEnum statusEnum) {
         order.setStatus(statusEnum);
         orderRepository.save(order);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(username);
-        message.setTo(user.getEmail());
+        message.setTo(userEmail);
         message.setSubject("Your Product Status Changed");
         message.setText("Your product " + statusEnum.toString());
 

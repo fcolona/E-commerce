@@ -88,7 +88,7 @@
         form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        let res = await fetch(`${window.location.origin}/api/v1/cart`, { method: "GET", headers: headers })
+        let res = await fetch(`${window.location.origin}/api/v1/cart/items`, { method: "GET", headers: headers })
         let cart = await res.json()
         let result = await stripe.retrievePaymentIntent(clientSecret)
         let paymentIntent = await result.paymentIntent

@@ -7,7 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-@Entity(name = "user_address")
+@Entity
+@Table(name = "user_address")
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -19,7 +20,7 @@ public class UserAddress{
     @Column(name = "address_id")
     private long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;

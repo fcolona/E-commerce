@@ -54,7 +54,7 @@ public class ProductService {
     }
 
     public Product update(long productId, Product product) throws ResourceNotFoundException {
-        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> {
+        Product existingProduct = productRepository.findByIdAndRetrieveCategoriesAndImages(productId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
             fields.add(new ErrorDetails.Field("productId", "Id given do not match"));
             throw new ResourceNotFoundException(fields);
