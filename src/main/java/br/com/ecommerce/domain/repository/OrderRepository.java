@@ -14,7 +14,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @EntityGraph(
             type = EntityGraph.EntityGraphType.FETCH,
-            attributePaths = {"orderItems", "userAddress"}
+            attributePaths = {"orderItems", "userAddress", "orderItems.product", "orderItems.product.categories", "orderItems.product.images"}
     )
     @Query(value = "SELECT o FROM Order o WHERE o.userId = ?1")
     List<Order> findByUserId(long userId);
@@ -24,7 +24,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @EntityGraph(
             type = EntityGraph.EntityGraphType.FETCH,
-            attributePaths = {"orderItems"}
+            attributePaths = {"orderItems", "orderItems.product", "orderItems.product.categories", "orderItems.product.images"}
     )
     @Query(value = "SELECT o FROM Order o WHERE o.id = :orderId AND o.userId = :userId")
     Optional<Order> findByIdAndUserIdAndRetrieveItems(long orderId, long userId);
@@ -38,7 +38,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @EntityGraph(
             type = EntityGraph.EntityGraphType.FETCH,
-            attributePaths = {"orderItems", "userAddress"}
+            attributePaths = {"orderItems", "userAddress", "orderItems.product", "orderItems.product.categories", "orderItems.product.images"}
     )
     @Query(value = "SELECT o FROM Order o WHERE o.id = :orderId AND o.userId = :userId")
     Optional<Order> findByIdAndUserIdAndRetrieveItemsAndAddress(long orderId, long userId);

@@ -5,16 +5,21 @@ import br.com.ecommerce.api.model.input.CartInput;
 import br.com.ecommerce.api.model.response.CartResponse;
 import br.com.ecommerce.api.model.response.CartWithItemsResponse;
 import br.com.ecommerce.domain.model.Cart;
-import br.com.ecommerce.domain.model.CartItem;
 import br.com.ecommerce.domain.model.User;
 import br.com.ecommerce.domain.repository.CartItemRepository;
 import br.com.ecommerce.domain.repository.CartRepository;
 import br.com.ecommerce.domain.service.CartService;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/cart")
@@ -37,8 +42,9 @@ public class CartController {
     }
 
     @GetMapping("/items")
-    public CartWithItemsResponse getCurrentUserCartAndRetrieveCartItems(){
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @Cacheable(value = "cart", key = "#authentication.getPrincipal().getId()")
+    public CartWithItemsResponse getCurrentUserCartAndRetrieveCartItems(Authentication authentication){
+        User user = (User) authentication.getPrincipal();
 
         Cart cart = cartRepository.findByIdAndRetrieveItems(user.getId()).orElseThrow();
         return cartAssembler.toAnyResponse(cart, CartWithItemsResponse.class);
@@ -46,16 +52,18 @@ public class CartController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CartWithItemsResponse addProductToCart(@RequestBody CartInput cartInput){
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @CachePut(value = "cart", key = "#authentication.getPrincipal().getId()")
+    public CartWithItemsResponse addProductToCart(@RequestBody CartInput cartInput, Authentication authentication){
+        User user = (User) authentication.getPrincipal();
 
        Cart cartSaved = cartService.addToCart(user.getId(), cartInput);
        return cartAssembler.toAnyResponse(cartSaved, CartWithItemsResponse.class);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> clearCart(){
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @CacheEvict(value = "cart", key = "#authentication.getPrincipal().getId()")
+    public ResponseEntity<Void> clearCart(Authentication authentication){
+        User user = (User) authentication.getPrincipal();
 
         cartRepository.deleteCartItemsByCartId(user.getId());
         cartRepository.updateTotalToZero(user.getId());
@@ -63,8 +71,9 @@ public class CartController {
     }
 
     @PutMapping
-    public CartWithItemsResponse updateProductQuantity(@RequestParam long cartItemId, @RequestParam int quantity){
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @CachePut(value = "cart", key = "#authentication.getPrincipal().getId()")
+    public CartWithItemsResponse updateProductQuantity(@RequestParam long cartItemId, @RequestParam int quantity, Authentication authentication){
+        User user = (User) authentication.getPrincipal();
         Cart cart = cartService.updateProductQuantity(user.getId(), cartItemId, quantity);
 
         return cartAssembler.toAnyResponse(cart, CartWithItemsResponse.class);

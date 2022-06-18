@@ -13,12 +13,17 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Entity
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Category {
-    
+public class Category implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 7156526077883281623L;
+
     @Id
     @EqualsAndHashCode.Include
     @Column(name = "category_id")

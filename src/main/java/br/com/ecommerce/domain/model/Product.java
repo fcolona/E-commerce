@@ -1,5 +1,7 @@
 package br.com.ecommerce.domain.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Set;
 
 import javax.persistence.*;
@@ -14,8 +16,10 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Product {
-    
+public class Product implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 7156526077883281623L;
+
     @Id
     @EqualsAndHashCode.Include
     @Column(name = "product_id")

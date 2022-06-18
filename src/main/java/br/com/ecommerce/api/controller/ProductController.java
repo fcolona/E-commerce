@@ -12,6 +12,10 @@ import br.com.ecommerce.api.model.response.ProductResponse;
 import br.com.ecommerce.api.model.response.ProductWithCategoriesResponse;
 import br.com.ecommerce.api.model.response.ProductWithCategoriesAndImagesResponse;
 import br.com.ecommerce.api.model.response.ProductWithImagesResponse;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -47,11 +51,13 @@ public class ProductController {
    private final ProductAssembler productAssembler;
    
     @GetMapping
+    @Cacheable(value = "products", key = "#root.methodName.concat('-').concat(#pageable.pageNumber).concat('-').concat(#pageable.pageSize).concat('-').concat(#pageable.offset)")
     public Page<Product> getProductPage(@PageableDefault(page = 0, size = 10, sort = "name", direction = Direction.DESC) Pageable pageable){
             return productRepository.findAll(pageable);
     }
 
     @GetMapping("/{productId}")
+    @Cacheable(value = "product", key = "#productId")
     public ProductResponse getProduct(@PathVariable long productId){
         Product product = productRepository.findById(productId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
@@ -62,6 +68,7 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}/categories")
+    @Cacheable(value = "product", key = "#productId + '-categories'")
     public ProductWithCategoriesResponse getProductAndRetrieveCategories(@PathVariable long productId){
         Product product = productRepository.findByIdAndRetrieveCategories(productId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
@@ -72,6 +79,7 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}/images")
+    @Cacheable(value = "product", key = "#productId + '-images'")
     public ProductWithImagesResponse getProductAndRetrieveImages(@PathVariable long productId){
         Product product = productRepository.findByIdAndRetrieveImages(productId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
@@ -82,6 +90,7 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}/categories-images")
+    @Cacheable(value = "product", key = "#productId + '-categories-images'")
     public ProductWithCategoriesAndImagesResponse getProductAndRetrieveCategoriesAndImages(@PathVariable long productId){
         Product product = productRepository.findByIdAndRetrieveCategoriesAndImages(productId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
@@ -93,12 +102,14 @@ public class ProductController {
 
 
     @GetMapping("/search")
+    @Cacheable(value = "products", key = "#root.methodName.concat('-').concat(#categories).concat('-').concat(#pageable.pageNumber).concat('-').concat(#pageable.pageSize).concat('-').concat(#pageable.offset)")
     public List<Map<String, Object>> getProductPageByCategories(@PageableDefault(page = 0, size = 10, sort = "name", direction = Direction.DESC) Pageable pageable, @RequestParam List<String> categories) throws SQLException{
        return productService.getProductsByCategories(pageable, categories); 
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @CacheEvict(value = "products", allEntries = true)
     public ProductWithCategoriesAndImagesResponse createProduct(@RequestBody @Valid ProductInput productInput){
         Product product = productAssembler.toEntity(productInput);
         Product productSaved = productService.save(product);
@@ -107,6 +118,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productId}")
+    @Caching(evict = {
+            @CacheEvict(value = "products", allEntries = true),
+            @CacheEvict(value = "product", key = "#productId + '-categories'"),
+            @CacheEvict(value = "product", key = "#productId + '-images'"),
+            @CacheEvict(value = "product", key = "#productId + '-categories-images'")
+    })
     public ResponseEntity<Void> deleteProduct(@PathVariable long productId){
         productRepository.deleteFromLinkTable(productId);
         productRepository.deleteById(productId);
@@ -115,6 +132,17 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
+    @Caching(
+            put = {
+                @CachePut(value = "product", key = "#productId"),
+                @CachePut(value = "product", key = "#productId + '-categories'"),
+                @CachePut(value = "product", key = "#productId + '-images'"),
+                @CachePut(value = "product", key = "#productId + '-categories-images'"),
+            },
+            evict = {
+                @CacheEvict(value = "products", allEntries = true)
+            }
+    )
     public ProductWithCategoriesAndImagesResponse updateProduct(@PathVariable long productId, @RequestBody @Valid ProductInput productInput) throws ResourceNotFoundException {
         Product product = productAssembler.toEntity(productInput);
         Product productUpdated = productService.update(productId, product);

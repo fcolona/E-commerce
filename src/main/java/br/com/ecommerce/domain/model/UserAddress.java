@@ -6,13 +6,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.io.Serial;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "user_address")
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class UserAddress{
+public class UserAddress implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 7156526077883281623L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

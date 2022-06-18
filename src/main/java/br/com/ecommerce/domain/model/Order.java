@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
@@ -13,7 +15,10 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Order {
+public class Order implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 7156526077883281623L;
+
     public enum StatusEnum {
         IN_STORAGE, SENT_FOR_SHIPPING, DELIVERED;
 

@@ -17,8 +17,13 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Refund;
 import com.stripe.param.RefundCreateParams;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,13 +42,15 @@ public class OrderController {
     private UserRepository userRepository;
 
     @GetMapping
-    public List<Order> getCurrentUserOrders(){
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @Cacheable(value = "orders", key = "#authentication.getPrincipal().getId()")
+    public List<Order> getCurrentUserOrders(Authentication authentication){
+        User user = (User) authentication.getPrincipal();
 
         return orderRepository.findByUserId(user.getId());
     }
 
     @GetMapping("/{orderId}")
+    @Cacheable(value = "order", key = "#orderId")
     public OrderResponse getOrder(@PathVariable long orderId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -56,6 +63,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}/items")
+    @Cacheable(value = "order", key = "#orderId + '-items'")
     public OrderWithItemsResponse getOrderAndRetrieveItems(@PathVariable long orderId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -68,6 +76,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}/address")
+    @Cacheable(value = "order", key = "#orderId + '-address'")
     public OrderWithAddressResponse getOrderAndRetrieveAddress(@PathVariable long orderId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -80,6 +89,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}/items-address")
+    @Cacheable(value = "order", key = "#orderId + '-items-address'")
     public OrderWithItemsAndAddressResponse getOrderAndRetrieveItemsAndAddress(@PathVariable long orderId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -93,6 +103,7 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @CacheEvict(value = "orders", allEntries = true)
     public OrderWithItemsAndAddressResponse createOrder(@RequestBody OrderInput orderInput){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -101,6 +112,13 @@ public class OrderController {
     }
 
     @DeleteMapping("/{orderId}")
+    @Caching(evict = {
+            @CacheEvict(value = "orders", allEntries = true),
+            @CacheEvict(value = "order", key = "#orderId"),
+            @CacheEvict(value = "order", key = "#orderId + '-items'"),
+            @CacheEvict(value = "order", key = "#orderId + '-address'"),
+            @CacheEvict(value = "order", key = "#orderId + '-items-address'")
+    })
     public ResponseEntity<Void> refund(@PathVariable long orderId) throws StripeException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -117,6 +135,17 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}")
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "orders", allEntries = true),
+                    @CacheEvict(value = "order", key = "#orderId-items"),
+                    @CacheEvict(value = "order", key = "#orderId-addresses"),
+                    @CacheEvict(value = "order", key = "#orderId-items-addresses"),
+            },
+            put = {
+                    @CachePut(key = "order", value = "#orderId")
+            }
+    )
     public Order updateOrderStatus(@PathVariable long orderId, @RequestBody Order.StatusEnum status){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
