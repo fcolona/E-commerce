@@ -1,6 +1,7 @@
 package br.com.ecommerce.api.controller;
 
 import br.com.ecommerce.api.assembler.CartAssembler;
+import br.com.ecommerce.api.common.ApiRoleAccessNotes;
 import br.com.ecommerce.api.model.input.CartInput;
 import br.com.ecommerce.api.model.response.CartResponse;
 import br.com.ecommerce.api.model.response.CartWithItemsResponse;
@@ -9,6 +10,7 @@ import br.com.ecommerce.domain.model.User;
 import br.com.ecommerce.domain.repository.CartItemRepository;
 import br.com.ecommerce.domain.repository.CartRepository;
 import br.com.ecommerce.domain.service.CartService;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -34,6 +36,8 @@ public class CartController {
     private CartItemRepository cartItemRepository;
 
     @GetMapping
+    @ApiOperation(value = "Return current user cart")
+    @ApiRoleAccessNotes("ROLE_USER")
     public CartResponse getCurrentUserCart(){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -43,6 +47,8 @@ public class CartController {
 
     @GetMapping("/items")
     @Cacheable(value = "cart", key = "#authentication.getPrincipal().getId()")
+    @ApiOperation(value = "Return current user cart and retrieve its items")
+    @ApiRoleAccessNotes("ROLE_USER")
     public CartWithItemsResponse getCurrentUserCartAndRetrieveCartItems(Authentication authentication){
         User user = (User) authentication.getPrincipal();
 
@@ -53,6 +59,8 @@ public class CartController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @CachePut(value = "cart", key = "#authentication.getPrincipal().getId()")
+    @ApiOperation(value = "Add a product to current user cart")
+    @ApiRoleAccessNotes("ROLE_USER")
     public CartWithItemsResponse addProductToCart(@RequestBody CartInput cartInput, Authentication authentication){
         User user = (User) authentication.getPrincipal();
 
@@ -62,6 +70,8 @@ public class CartController {
 
     @DeleteMapping
     @CacheEvict(value = "cart", key = "#authentication.getPrincipal().getId()")
+    @ApiOperation(value = "Clear current user cart")
+    @ApiRoleAccessNotes("ROLE_USER")
     public ResponseEntity<Void> clearCart(Authentication authentication){
         User user = (User) authentication.getPrincipal();
 
@@ -72,6 +82,8 @@ public class CartController {
 
     @PutMapping
     @CachePut(value = "cart", key = "#authentication.getPrincipal().getId()")
+    @ApiOperation(value = "Update the quantity of a product inside the current user cart")
+    @ApiRoleAccessNotes("ROLE_USER")
     public CartWithItemsResponse updateProductQuantity(@RequestParam long cartItemId, @RequestParam int quantity, Authentication authentication){
         User user = (User) authentication.getPrincipal();
         Cart cart = cartService.updateProductQuantity(user.getId(), cartItemId, quantity);

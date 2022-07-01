@@ -2,8 +2,10 @@ package br.com.ecommerce.api.controller;
 
 import java.util.List;
 
+import br.com.ecommerce.api.common.ApiRoleAccessNotes;
 import br.com.ecommerce.api.exception.ResourceAlreadyExistsException;
 import br.com.ecommerce.api.exception.ResourceNotFoundException;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,22 +33,29 @@ public class CategoryController {
     private final CategoryRepository categoryRepository;
 
     @GetMapping
+    @ApiOperation(value = "Return a list of all categories")
     public List<Category> getAllCategories(){
         return categoryRepository.findAll();
     }
     
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "Create a new category")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public Category createCategory(@RequestBody @Valid Category category) throws ResourceAlreadyExistsException {
        return categoryService.save(category); 
     }
 
     @PutMapping("/{categoryId}")
+    @ApiOperation(value = "Update a category name")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public Category updateCategory(@PathVariable long categoryId, @RequestBody @Valid Category category) throws ResourceAlreadyExistsException, ResourceNotFoundException {
         return categoryService.update(categoryId, category);
     }
 
     @DeleteMapping("/{categoryId}")
+    @ApiOperation(value = "Delete a category by id")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public ResponseEntity<Void> deleteCategory(@PathVariable long categoryId){
         categoryRepository.deleteById(categoryId);
 

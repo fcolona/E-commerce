@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import br.com.ecommerce.api.common.ApiRoleAccessNotes;
 import br.com.ecommerce.api.exception.ErrorDetails;
 import br.com.ecommerce.api.exception.ResourceNotFoundException;
 import br.com.ecommerce.api.model.response.ProductResponse;
 import br.com.ecommerce.api.model.response.ProductWithCategoriesResponse;
 import br.com.ecommerce.api.model.response.ProductWithCategoriesAndImagesResponse;
 import br.com.ecommerce.api.model.response.ProductWithImagesResponse;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -52,12 +54,14 @@ public class ProductController {
    
     @GetMapping
     @Cacheable(value = "products", key = "#root.methodName.concat('-').concat(#pageable.pageNumber).concat('-').concat(#pageable.pageSize).concat('-').concat(#pageable.offset)")
+    @ApiOperation(value = "Return a page of products")
     public Page<Product> getProductPage(@PageableDefault(page = 0, size = 10, sort = "name", direction = Direction.DESC) Pageable pageable){
             return productRepository.findAll(pageable);
     }
 
     @GetMapping("/{productId}")
     @Cacheable(value = "product", key = "#productId")
+    @ApiOperation(value = "Get a product by id")
     public ProductResponse getProduct(@PathVariable long productId){
         Product product = productRepository.findById(productId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
@@ -69,6 +73,7 @@ public class ProductController {
 
     @GetMapping("/{productId}/categories")
     @Cacheable(value = "product", key = "#productId + '-categories'")
+    @ApiOperation(value = "Get a product by id and retrieve its categories")
     public ProductWithCategoriesResponse getProductAndRetrieveCategories(@PathVariable long productId){
         Product product = productRepository.findByIdAndRetrieveCategories(productId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
@@ -80,6 +85,7 @@ public class ProductController {
 
     @GetMapping("/{productId}/images")
     @Cacheable(value = "product", key = "#productId + '-images'")
+    @ApiOperation(value = "Get a product by id and retrieve its images")
     public ProductWithImagesResponse getProductAndRetrieveImages(@PathVariable long productId){
         Product product = productRepository.findByIdAndRetrieveImages(productId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
@@ -91,6 +97,7 @@ public class ProductController {
 
     @GetMapping("/{productId}/categories-images")
     @Cacheable(value = "product", key = "#productId + '-categories-images'")
+    @ApiOperation(value = "Get a product by id and retrieve its categories and images")
     public ProductWithCategoriesAndImagesResponse getProductAndRetrieveCategoriesAndImages(@PathVariable long productId){
         Product product = productRepository.findByIdAndRetrieveCategoriesAndImages(productId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();
@@ -103,6 +110,7 @@ public class ProductController {
 
     @GetMapping("/search")
     @Cacheable(value = "products", key = "#root.methodName.concat('-').concat(#categories).concat('-').concat(#pageable.pageNumber).concat('-').concat(#pageable.pageSize).concat('-').concat(#pageable.offset)")
+    @ApiOperation(value = "Return a page of products and filter by categories")
     public List<Map<String, Object>> getProductPageByCategories(@PageableDefault(page = 0, size = 10, sort = "name", direction = Direction.DESC) Pageable pageable, @RequestParam List<String> categories) throws SQLException{
        return productService.getProductsByCategories(pageable, categories); 
     }
@@ -110,6 +118,8 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @CacheEvict(value = "products", allEntries = true)
+    @ApiOperation(value = "Register a new product")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public ProductWithCategoriesAndImagesResponse createProduct(@RequestBody @Valid ProductInput productInput){
         Product product = productAssembler.toEntity(productInput);
         Product productSaved = productService.save(product);
@@ -124,6 +134,8 @@ public class ProductController {
             @CacheEvict(value = "product", key = "#productId + '-images'"),
             @CacheEvict(value = "product", key = "#productId + '-categories-images'")
     })
+    @ApiOperation(value = "Delete a product by id")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public ResponseEntity<Void> deleteProduct(@PathVariable long productId){
         productRepository.deleteFromLinkTable(productId);
         productRepository.deleteById(productId);
@@ -143,6 +155,8 @@ public class ProductController {
                 @CacheEvict(value = "products", allEntries = true)
             }
     )
+    @ApiOperation(value = "Update a product")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public ProductWithCategoriesAndImagesResponse updateProduct(@PathVariable long productId, @RequestBody @Valid ProductInput productInput) throws ResourceNotFoundException {
         Product product = productAssembler.toEntity(productInput);
         Product productUpdated = productService.update(productId, product);

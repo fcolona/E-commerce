@@ -1,6 +1,7 @@
 package br.com.ecommerce.api.controller;
 
 import br.com.ecommerce.api.assembler.UserAddressAssembler;
+import br.com.ecommerce.api.common.ApiRoleAccessNotes;
 import br.com.ecommerce.api.exception.ErrorDetails;
 import br.com.ecommerce.api.exception.ResourceNotFoundException;
 import br.com.ecommerce.api.exception.UserDoesNotHaveResourceRegistered;
@@ -10,6 +11,7 @@ import br.com.ecommerce.domain.model.UserAddress;
 import br.com.ecommerce.domain.repository.UserAddressRepository;
 import br.com.ecommerce.domain.repository.UserRepository;
 import br.com.ecommerce.domain.service.UserAddressService;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,8 @@ public class UserAddressController {
     private UserAddressAssembler userAddressAssembler;
 
     @GetMapping
+    @ApiOperation(value = "Return a list of addresses of the current user")
+    @ApiRoleAccessNotes("ROLE_USER")
     public List<UserAddress> getUserAddress(){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -45,6 +49,8 @@ public class UserAddressController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "Registry an address of the current user")
+    @ApiRoleAccessNotes("ROLE_USER")
     public UserAddress createUserAddress(@RequestBody UserAddressInput userAddressInput){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserAddress userAddress = userAddressAssembler.toEntity(userAddressInput);
@@ -53,6 +59,8 @@ public class UserAddressController {
     };
 
     @PutMapping("/{addressId}")
+    @ApiOperation(value = "Update an address of the current user")
+    @ApiRoleAccessNotes("ROLE_USER")
     public UserAddress updateUserAddress(@PathVariable long addressId, @RequestBody UserAddressInput userAddressInput){
         UserAddress userAddress = userAddressAssembler.toEntity(userAddressInput);
 
@@ -60,6 +68,8 @@ public class UserAddressController {
     }
 
     @DeleteMapping("/{addressId}")
+    @ApiOperation(value = "Delete an address of the current user")
+    @ApiRoleAccessNotes("ROLE_USER")
     public ResponseEntity<Void> deleteUserAddress(@PathVariable long addressId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         userAddressRepository.deleteByIdAndUserId(addressId, user.getId());

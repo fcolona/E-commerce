@@ -1,6 +1,7 @@
 package br.com.ecommerce.api.controller;
 
 import br.com.ecommerce.api.assembler.OrderAssembler;
+import br.com.ecommerce.api.common.ApiRoleAccessNotes;
 import br.com.ecommerce.api.exception.ErrorDetails;
 import br.com.ecommerce.api.exception.ResourceNotFoundException;
 import br.com.ecommerce.api.model.input.OrderInput;
@@ -16,6 +17,7 @@ import br.com.ecommerce.domain.service.OrderService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Refund;
 import com.stripe.param.RefundCreateParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -43,6 +45,8 @@ public class OrderController {
 
     @GetMapping
     @Cacheable(value = "orders", key = "#authentication.getPrincipal().getId()")
+    @ApiOperation(value = "Return current user orders")
+    @ApiRoleAccessNotes("ROLE_USER")
     public List<Order> getCurrentUserOrders(Authentication authentication){
         User user = (User) authentication.getPrincipal();
 
@@ -51,6 +55,8 @@ public class OrderController {
 
     @GetMapping("/{orderId}")
     @Cacheable(value = "order", key = "#orderId")
+    @ApiOperation(value = "Return an order of the current user")
+    @ApiRoleAccessNotes("ROLE_USER")
     public OrderResponse getOrder(@PathVariable long orderId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -64,6 +70,8 @@ public class OrderController {
 
     @GetMapping("/{orderId}/items")
     @Cacheable(value = "order", key = "#orderId + '-items'")
+    @ApiOperation(value = "Return an order of the current user and retrieve its items")
+    @ApiRoleAccessNotes("ROLE_USER")
     public OrderWithItemsResponse getOrderAndRetrieveItems(@PathVariable long orderId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -77,6 +85,8 @@ public class OrderController {
 
     @GetMapping("/{orderId}/address")
     @Cacheable(value = "order", key = "#orderId + '-address'")
+    @ApiOperation(value = "Return an order of the current user and retrieve its address")
+    @ApiRoleAccessNotes("ROLE_USER")
     public OrderWithAddressResponse getOrderAndRetrieveAddress(@PathVariable long orderId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -90,6 +100,8 @@ public class OrderController {
 
     @GetMapping("/{orderId}/items-address")
     @Cacheable(value = "order", key = "#orderId + '-items-address'")
+    @ApiOperation(value = "Return an order of the current user and retrieve its items and address")
+    @ApiRoleAccessNotes("ROLE_USER")
     public OrderWithItemsAndAddressResponse getOrderAndRetrieveItemsAndAddress(@PathVariable long orderId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -104,6 +116,8 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @CacheEvict(value = "orders", allEntries = true)
+    @ApiOperation(value = "Register a new order made by the current user")
+    @ApiRoleAccessNotes("ROLE_USER")
     public OrderWithItemsAndAddressResponse createOrder(@RequestBody OrderInput orderInput){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -119,6 +133,8 @@ public class OrderController {
             @CacheEvict(value = "order", key = "#orderId + '-address'"),
             @CacheEvict(value = "order", key = "#orderId + '-items-address'")
     })
+    @ApiOperation(value = "Refunds an order of the current user by id")
+    @ApiRoleAccessNotes("ROLE_USER")
     public ResponseEntity<Void> refund(@PathVariable long orderId) throws StripeException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -146,6 +162,8 @@ public class OrderController {
                     @CachePut(key = "order", value = "#orderId")
             }
     )
+    @ApiOperation(value = "Update an order status")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public Order updateOrderStatus(@PathVariable long orderId, @RequestBody Order.StatusEnum status){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> {
             Set<ErrorDetails.Field> fields = new HashSet<>();

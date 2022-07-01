@@ -1,8 +1,10 @@
 package br.com.ecommerce.api.controller;
 
+import br.com.ecommerce.api.common.ApiRoleAccessNotes;
 import br.com.ecommerce.domain.model.Image;
 import br.com.ecommerce.domain.model.Product;
 import br.com.ecommerce.domain.service.ImageService;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,8 @@ public class ImageController {
     private ImageService imageService;
 
     @PostMapping(value = "/api/v1/product/{productId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation(value = "Add images to an existing product that has no images")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public List<Image> addImagesToProducts(@RequestPart("files") MultipartFile[] imagesFile, @PathVariable long productId) throws IOException {
         List<Image> images = new ArrayList<>();
         for (MultipartFile multipartFile : imagesFile) {
@@ -34,6 +38,8 @@ public class ImageController {
     }
 
     @PutMapping(value = "/api/v1/products/{productId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation(value = "Updates a product images")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public List<Image> updateProductImages(@RequestPart("files") MultipartFile[] imagesFile, @PathVariable long productId) throws IOException {
         List<Image> images = new ArrayList<>();
         for (MultipartFile multipartFile : imagesFile) {

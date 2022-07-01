@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import br.com.ecommerce.api.common.ApiRoleAccessNotes;
 import br.com.ecommerce.api.exception.ResourceAlreadyExistsException;
 import br.com.ecommerce.api.model.response.UserWithRolesAndAddressesAndOrdersResponse;
 import br.com.ecommerce.api.model.response.UserWithRolesResponse;
@@ -20,6 +21,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -50,6 +52,8 @@ public class UserController {
     }
     
     @GetMapping
+    @ApiOperation(value = "Return a list of users")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public List<UserWithRolesAndAddressesAndOrdersResponse> getAllUsers(){
         List<User> users = userRepository.findAll();
         return userAssembler.toCollectionAnyResponse(users, UserWithRolesAndAddressesAndOrdersResponse.class);
@@ -57,6 +61,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "Create a new account")
     public UserWithRolesResponse createUser(@RequestBody @Valid UserInput userInput) throws ResourceAlreadyExistsException {
         User user = userAssembler.toEntity(userInput);
 
@@ -65,6 +70,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @ApiOperation(value = "Delete user by id")
+    @ApiRoleAccessNotes("ROLE_ADMIN")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userRepository.deleteFromLinkTable(userId);
         userRepository.deleteCartByUserId(userId);
@@ -74,6 +81,8 @@ public class UserController {
     }
 
     @GetMapping("/refreshToken")
+    @ApiOperation(value = "Generate a new jwt token, using an existing one")
+    @ApiRoleAccessNotes("ROLE_USER")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException{
         String authorizationHeader = request.getHeader("Authorization");
 
