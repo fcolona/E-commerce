@@ -1,0 +1,44 @@
+version: "3"
+services:
+  ecommerce-spring:
+    image: ecommerce-spring
+    build:
+      context:
+        .
+      args:
+        - STRIPE_PUBLIC_API_KEY=${STRIPE_PUBLIC_API_KEY}
+        - STRIPE_SECRET_API_KEY=${STRIPE_SECRET_API_KEY}
+        - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
+        - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks:
+      - ecommerce-network
+    depends_on:
+      - mysqldb
+      - cache
+ 
+  mysqldb:
+    image: mysql:8
+    networks:
+      - ecommerce-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=ecommerce
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z 127.0.0.1 3306 || exit 1" ]
+      interval: 1m30s
+      timeout: 60s
+      retries: 6
+
+  cache:
+    hostname: cache
+    image: redis:6.2-alpine
+    networks:
+      - ecommerce-network
+    restart: always
+    ports:
+      - "6379:6379"
+
+networks:
+  ecommerce-network:

@@ -14,9 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -44,7 +42,7 @@ public class CartServiceTest {
     void canAddToCart(){
         //given
         Cart cart = new Cart();
-        List<CartItem> cartItems = new ArrayList<>();
+        Set<CartItem> cartItems = new HashSet<>();
         cart.setCartItems(cartItems);
         cart.setTotal(0);
         when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
@@ -73,7 +71,7 @@ public class CartServiceTest {
     void canUpdateProductQuantity(){
         //given
         Cart cart = new Cart();
-        List<CartItem> cartItems = new ArrayList<>();
+        Set<CartItem> cartItems = new HashSet<>();
         CartItem cartItem = new CartItem();
         cartItem.setCartId(1L);
         cartItem.setQuantity(1);
@@ -92,7 +90,8 @@ public class CartServiceTest {
         underTest.updateProductQuantity(1L, 1L, 2);
 
         //then
-        cart.getCartItems().get(0).setQuantity(2);
+        CartItem item = (CartItem) cart.getCartItems().toArray()[0];
+        item.setQuantity(2);
         cart.setTotal(700.0);
         verify(cartRepository).save(cart);
     }

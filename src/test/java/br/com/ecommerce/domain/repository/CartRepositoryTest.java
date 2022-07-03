@@ -9,7 +9,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @DataJpaTest
 public class CartRepositoryTest {
@@ -50,7 +52,7 @@ public class CartRepositoryTest {
         cart.setUser(userSaved);
         Cart cartSaved = underTest.save(cart);
 
-        List<CartItem> cartItems = new ArrayList<>();
+        Set<CartItem> cartItems = new HashSet<>();
         CartItem cartItem = new CartItem();
         cartItem.setCartId(cartSaved.getId());
         cartItem.setQuantity(2);
@@ -86,7 +88,7 @@ public class CartRepositoryTest {
         cart.setUser(userSaved);
         Cart cartSaved = underTest.save(cart);
 
-        List<CartItem> cartItems = new ArrayList<>();
+        Set<CartItem> cartItems = new HashSet<>();
         CartItem cartItem = new CartItem();
         cartItem.setCartId(cartSaved.getId());
         cartItem.setQuantity(2);
