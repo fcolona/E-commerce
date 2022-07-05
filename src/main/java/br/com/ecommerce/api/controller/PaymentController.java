@@ -11,6 +11,7 @@ import com.stripe.model.PaymentIntent;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/payment")
+@ConditionalOnExpression(value = "!'${STRIPE_PUBLIC_API_KEY}'.isBlank() and !'${STRIPE_SECRET_API_KEY}'.isBlank()")
 public class PaymentController {
     @Value("${STRIPE_PUBLIC_API_KEY}")
     private String publicKey;
