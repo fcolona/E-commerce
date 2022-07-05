@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 services:
   ecommerce-spring:
     image: ecommerce-spring
@@ -12,33 +12,26 @@ services:
         - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
     ports:
       - "8080:8080"
-    networks:
-      - ecommerce-network
     depends_on:
-      - mysqldb
+      - db
       - cache
- 
-  mysqldb:
+
+  db:
     image: mysql:8
-    networks:
-      - ecommerce-network
+    hostname: db
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=ecommerce
-    healthcheck:
-      test: [ "CMD-SHELL", "nc -z 127.0.0.1 3306 || exit 1" ]
-      interval: 1m30s
-      timeout: 60s
-      retries: 6
+    volumes:
+      - data:/var/lib/mysql
+    ports:
+      - "3307:3306"
 
   cache:
     hostname: cache
     image: redis:6.2-alpine
-    networks:
-      - ecommerce-network
     restart: always
     ports:
       - "6379:6379"
-
-networks:
-  ecommerce-network:
+volumes:
+  data:
