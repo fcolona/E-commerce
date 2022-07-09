@@ -8,6 +8,12 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.Set;
 
+@NamedEntityGraph(
+        name = "cart-items",
+        attributeNodes = {
+                @NamedAttributeNode("cartItems"),
+        }
+)
 @Entity
 @EqualsAndHashCode
 @Getter

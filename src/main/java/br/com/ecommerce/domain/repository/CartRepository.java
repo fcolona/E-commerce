@@ -22,7 +22,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     @EntityGraph(
             type = EntityGraph.EntityGraphType.FETCH,
-            attributePaths = {"cartItems", "cartItems.product", "cartItems.product.categories", "cartItems.product.images"}
+            attributePaths = {"cartItems", "cartItems.product", "cartItems.product.categories", "cartItems.product.images", "cartItems.product.categories"}
     )
     @Query(value = "SELECT c FROM Cart c WHERE c.id = ?1")
     Optional<Cart> findByIdAndRetrieveItems(long id);

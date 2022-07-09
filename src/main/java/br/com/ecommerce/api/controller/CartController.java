@@ -6,6 +6,8 @@ import br.com.ecommerce.api.model.input.CartInput;
 import br.com.ecommerce.api.model.response.CartResponse;
 import br.com.ecommerce.api.model.response.CartWithItemsResponse;
 import br.com.ecommerce.domain.model.Cart;
+import br.com.ecommerce.domain.model.CartItem;
+import br.com.ecommerce.domain.model.Category;
 import br.com.ecommerce.domain.model.User;
 import br.com.ecommerce.domain.repository.CartItemRepository;
 import br.com.ecommerce.domain.repository.CartRepository;
@@ -22,6 +24,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/cart")
@@ -58,7 +62,7 @@ public class CartController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @CachePut(value = "cart", key = "#authentication.getPrincipal().getId()")
+    @CacheEvict(value = "cart", key = "#authentication.getPrincipal().getId()")
     @ApiOperation(value = "Add a product to current user cart")
     @ApiRoleAccessNotes("ROLE_USER")
     public CartWithItemsResponse addProductToCart(@RequestBody CartInput cartInput, Authentication authentication){

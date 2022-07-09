@@ -104,6 +104,7 @@ public class UserController {
                         .withExpiresAt(new Date(System.currentTimeMillis() + tenMinutes))
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles", user.getRoles().stream().map(Role::getAuthority).collect(Collectors.toList()))
+                        .withClaim("id", user.getId())
                         .sign(algorithm);
 
                     response.setHeader("access_token", accessToken);
